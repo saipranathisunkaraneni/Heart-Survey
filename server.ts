@@ -8,7 +8,7 @@ import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
 import firebaseConfig from './firebase-applet-config.json';
 
 const app = express();
-const PORT = 3004;
+const PORT = process.env.PORT || 3004;
 
 // Simple custom in-memory rate limiter
 const ipCache = new Map<string, { count: number; resetTime: number }>();

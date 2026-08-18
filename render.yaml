@@ -1,0 +1,14 @@
+services:
+  - type: web
+    name: srinivasa-heart-survey
+    env: node
+    plan: free
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: GEMINI_API_KEY
+        sync: false # Set this variable in the Render Dashboard under Environment Variables
+      - key: APP_URL
+        sync: false # Set this variable in the Render Dashboard if needed
