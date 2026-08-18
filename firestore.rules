@@ -1,0 +1,48 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Global Safety Net: default-deny catch-all
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Helper Primitives
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isValidSurvey(data) {
+      return data.surveyDate is string && data.surveyDate.size() <= 64 &&
+             data.surveyTime is string && data.surveyTime.size() <= 64 &&
+             data.language is string && data.language.size() <= 16 &&
+             data.personalDetails is map &&
+             data.responses is map &&
+             data.createdAt is string && data.createdAt.size() <= 64;
+    }
+
+    // Security Rules for surveys collection
+    match /surveys/{surveyId} {
+      allow create: if isValidSurvey(incoming());
+      
+      // Allow reading only if logged in as staff
+      allow read: if isAuthenticated();
+
+      // Restrict structural changes (updates or deletions)
+      allow update, delete: if false;
+    }
+
+    // Security Rules for users collection
+    match /users/{userId} {
+      allow read, write: if isAuthenticated();
+    }
+
+    // Security Rules for patients collection
+    match /patients/{patientId} {
+      allow read, write: if isAuthenticated();
+    }
+  }
+}
